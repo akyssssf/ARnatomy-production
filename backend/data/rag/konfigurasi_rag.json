@@ -1,0 +1,129 @@
+{
+  "jenis": "rag",
+  "project": "ARnatomy",
+  "cakupan": [
+    "Sistem Peredaran Darah",
+    "Sistem Pernapasan"
+  ],
+  "folder_db": "data/vectordb",
+  "nama_koleksi": "arnatomy_pdf",
+  "jumlah_chunk": 412,
+  "nama_embedding": "paraphrase-multilingual-MiniLM-L12-v2",
+  "jarak": "cosine",
+  "k": 5,
+  "retrieve": {
+    "metode": "hybrid_rrf",
+    "rrf_k": 60,
+    "tfidf_dari": "data/processed/knowledge_base_pdf.csv",
+    "kolom_id": "id_chunk",
+    "kolom_teks": "teks",
+    "stopword": [
+      "apa",
+      "yang",
+      "dan",
+      "untuk",
+      "pada",
+      "berapa",
+      "bagaimana",
+      "mengapa",
+      "kenapa",
+      "kapan",
+      "agar",
+      "dengan",
+      "adalah",
+      "atau",
+      "jika",
+      "itu",
+      "di",
+      "ke",
+      "dari",
+      "mana",
+      "saja",
+      "ini",
+      "kalau",
+      "seperti",
+      "buat",
+      "dalam",
+      "kita",
+      "saat",
+      "disebut"
+    ],
+    "batas_jarak_memakai": "jarak embedding chunk terdekat"
+  },
+  "batas_jarak": 0.46,
+  "base_url": "https://api.groq.com/openai/v1/",
+  "model_llm": "openai/gpt-oss-20b",
+  "temperature": 0,
+  "max_tokens": 2000,
+  "reasoning_effort": "low",
+  "jenjang": {
+    "SMP": "siswa SMP (usia 13-15 tahun). Pakai kalimat pendek dan kata sehari-hari. Istilah ilmiah boleh dipakai asal langsung dijelaskan dengan kata sederhana.",
+    "SMA": "siswa SMA (usia 16-18 tahun). Boleh memakai istilah biologi (misalnya atrium, ventrikel, alveolus, difusi) dan menjelaskan proses lebih rinci."
+  },
+  "jenjang_default": "SMP",
+  "system_prompt": "Kamu asisten belajar anatomi di aplikasi ARnatomy. Lawan bicaramu adalah {jenjang}\nAturan menjawab:\n1. Fakta inti (nama bagian, fungsi, angka, urutan proses) WAJIB berasal dari konteks buku. Jangan menambah fakta yang tidak ada di konteks.\n2. Susun jawaban dengan kalimatmu sendiri, tidak perlu menyalin kalimat buku. Sesuaikan gaya dengan cara siswa bertanya.\n3. Boleh memakai satu analogi dari kehidupan sehari-hari jika membantu, asal tidak mengubah atau menyesatkan faktanya.\n4. Jawab maksimal 4 kalimat. Jangan menulis nama buku, nomor halaman, atau nomor konteks di jawaban, karena sumber ditampilkan terpisah oleh aplikasi.\n5. ARnatomy HANYA membahas sistem peredaran darah dan sistem pernapasan manusia. Jika pertanyaan tentang organ atau sistem lain (misalnya lambung, ginjal, otak, tulang), tulis persis: {tidak_ada} walaupun konteks menyinggungnya.",
+  "template_prompt": "Konteks dari buku:\n{konteks}\n\nJika konteks tidak membahas pertanyaan, tulis persis: {tidak_ada}\n\nPertanyaan siswa: {pertanyaan}\nJawaban:",
+  "format_konteks": "[{no}] {teks}",
+  "pesan_tidak_ada": "Maaf, materi itu belum ada di ARnatomy. Saat ini baru tersedia sistem peredaran darah dan sistem pernapasan.",
+  "panjang_cuplikan": 200,
+  "chunking": {
+    "ukuran_kata": 60,
+    "tumpang_kata": 15
+  },
+  "sumber_pdf": [
+    {
+      "file": "ipa_smp.pdf",
+      "judul": "IPA SMP Kelas VIII",
+      "halaman": [
+        [
+          53,
+          66
+        ],
+        [
+          67,
+          83
+        ]
+      ]
+    },
+    {
+      "file": "sirkulasi_sma.pdf",
+      "judul": "Biologi SMA Kelas XI",
+      "halaman": [
+        [
+          105,
+          142
+        ]
+      ]
+    },
+    {
+      "file": "Buku Anatomi dan Fisiologi Tubuh Manusia (1).pdf",
+      "judul": "Buku Anatomi dan Fisiologi",
+      "halaman": [
+        [
+          27,
+          34
+        ],
+        [
+          53,
+          60
+        ]
+      ]
+    },
+    {
+      "file": "BUKU_GG SISTEM PERNAFASAN.pdf",
+      "judul": "Buku Ajar Gangguan Sistem Pernafasan",
+      "halaman": [
+        [
+          11,
+          100
+        ]
+      ]
+    }
+  ],
+  "evaluasi_hari2": {
+    "Recall@1": 0.562,
+    "Recall@3": 0.688,
+    "Recall@5": 0.812,
+    "MRR": 0.668
+  }
+}

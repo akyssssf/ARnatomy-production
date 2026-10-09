@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ARnatomy">
+  <title>ARnatomy</title>
+  <rect width="64" height="64" rx="16" fill="#1566f4"/>
+  <path d="M32 50.5S15 40.6 15 28.9A8.5 8.5 0 0 1 32 25.4a8.5 8.5 0 0 1 17 3.5c0 11.7-17 21.6-17 21.6Z" fill="#fff"/>
+  <circle cx="45" cy="19" r="4" fill="#fff" opacity=".85"/>
+</svg>

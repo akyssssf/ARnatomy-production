@@ -1,0 +1,80 @@
+# ARnatomy lengkap: frontend (Next.js) + backend (Hono) + PostgreSQL, satu perintah:
+#   cp .env.example .env   (isi rahasia)   lalu   docker compose up -d --build
+# Hanya frontend yang dibuka ke luar (port 3000). Backend dan basis data hanya terjangkau
+# dari jaringan Docker; peramban tidak pernah memanggil backend langsung (frontend meneruskannya).
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: arnatomy
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-arnatomy}
+      POSTGRES_DB: arnatomy
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arnatomy"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgres://arnatomy:${DB_PASSWORD:-arnatomy}@db:5432/arnatomy
+      JWT_SECRET: ${JWT_SECRET:?isi JWT_SECRET (minimal 32 karakter) di berkas .env}
+      # Hanya frontend yang memanggil API ini, jadi header X-Forwarded-For darinya dipercaya
+      TRUST_PROXY: "true"
+      CORS_ORIGINS: ${SITE_URL:-http://localhost:3000}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?isi ADMIN_EMAIL di berkas .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?isi ADMIN_PASSWORD di berkas .env}
+      GOOGLE_CLIENT_IDS: ${GOOGLE_CLIENT_ID:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      STORAGE_DRIVER: lokal
+      STORAGE_DIR: /data/uploads
+      # Dibaca frontend dari dalam jaringan Docker untuk menyajikan model unggahan
+      STORAGE_PUBLIC_URL: http://api:4000/files
+      UV_THREADPOOL_SIZE: 8
+      RAG_EMBEDDING: ${RAG_EMBEDDING:-q8}
+    volumes:
+      - uploads:/data/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost:3000}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${PORT_HOST:-3000}:3000"
+    environment:
+      BACKEND_URL: http://api:4000
+      SESSION_SECRET: ${SESSION_SECRET:?isi SESSION_SECRET (minimal 32 karakter) di berkas .env}
+      # Set false hanya bila diuji lewat http biasa tanpa HTTPS (cookie Secure ditolak sebagian peramban)
+      COOKIE_AMAN: ${COOKIE_AMAN:-true}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  uploads:

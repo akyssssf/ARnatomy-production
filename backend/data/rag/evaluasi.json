@@ -1,0 +1,132 @@
+{
+ "retrieval": [
+  {
+   "pertanyaan": "Jantung manusia terdiri atas berapa ruang?",
+   "kata_kunci": "empat ruang"
+  },
+  {
+   "pertanyaan": "Apa fungsi serambi pada jantung?",
+   "kata_kunci": "serambi;menerima darah"
+  },
+  {
+   "pertanyaan": "Kenapa dinding bilik jantung lebih tebal?",
+   "kata_kunci": "ventrikel;tebal"
+  },
+  {
+   "pertanyaan": "Apa yang terjadi saat kita terluka dan berdarah?",
+   "kata_kunci": "trombosit;perdarahan"
+  },
+  {
+   "pertanyaan": "Tekanan darah berapa yang disebut darah tinggi?",
+   "kata_kunci": "hipertensi;140"
+  },
+  {
+   "pertanyaan": "Apa itu aterosklerosis?",
+   "kata_kunci": "aterosklerosis;lemak"
+  },
+  {
+   "pertanyaan": "Bagaimana jalur peredaran darah kecil?",
+   "kata_kunci": "peredaran darah kecil"
+  },
+  {
+   "pertanyaan": "Apa fungsi katup jantung?",
+   "kata_kunci": "katup;berbalik"
+  },
+  {
+   "pertanyaan": "Di mana pertukaran gas terjadi di paru-paru?",
+   "kata_kunci": "alveolus;pertukaran gas"
+  },
+  {
+   "pertanyaan": "Apa fungsi rambut halus di saluran napas?",
+   "kata_kunci": "silia;menyaring"
+  },
+  {
+   "pertanyaan": "Apa yang dilakukan diafragma saat menarik napas?",
+   "kata_kunci": "diafragma;berkontraksi"
+  },
+  {
+   "pertanyaan": "Apa fungsi cairan surfaktan?",
+   "kata_kunci": "surfaktan"
+  },
+  {
+   "pertanyaan": "Berapa kali manusia bernapas dalam sehari?",
+   "kata_kunci": "17 ribu"
+  },
+  {
+   "pertanyaan": "Bakteri apa penyebab TBC?",
+   "kata_kunci": "mycobacterium"
+  },
+  {
+   "pertanyaan": "Kenapa makanan tidak masuk ke saluran napas?",
+   "kata_kunci": "epiglotis;makan"
+  },
+  {
+   "pertanyaan": "Apa itu PPOK?",
+   "kata_kunci": "ppok;aliran udara"
+  }
+ ],
+ "dalam_cakupan_tambahan": [
+  "Kenapa jantung berdetak lebih cepat waktu lari?",
+  "Apa bedanya pembuluh arteri dan vena?",
+  "Kenapa bibir orang yang kekurangan darah terlihat pucat?",
+  "Bagaimana oksigen dibawa darah ke seluruh tubuh?",
+  "Kenapa kita batuk kalau tersedak?",
+  "Kenapa perokok gampang sesak napas?",
+  "Apa yang terjadi di alveolus?",
+  "Apa fungsi trombosit?",
+  "Bakteri apa penyebab tuberkulosis?",
+  "Apa fungsi epiglotis?"
+ ],
+ "di_luar_cakupan": [
+  {
+   "pertanyaan": "Apa fungsi ginjal pada manusia?",
+   "asal": "notebook"
+  },
+  {
+   "pertanyaan": "Berapa jumlah tulang pada tubuh manusia dewasa?",
+   "asal": "notebook"
+  },
+  {
+   "pertanyaan": "Bagaimana cara kerja otak?",
+   "asal": "notebook"
+  },
+  {
+   "pertanyaan": "Apa fungsi lambung dalam pencernaan?",
+   "asal": "notebook"
+  },
+  {
+   "pertanyaan": "Bagaimana mata bisa melihat warna?",
+   "asal": "notebook"
+  },
+  {
+   "pertanyaan": "Apa itu diabetes?",
+   "asal": "tambahan"
+  },
+  {
+   "pertanyaan": "Bagaimana cara kerja telinga?",
+   "asal": "tambahan"
+  },
+  {
+   "pertanyaan": "Kenapa kulit bisa terbakar matahari?",
+   "asal": "tambahan"
+  },
+  {
+   "pertanyaan": "Siapa presiden pertama Indonesia?",
+   "asal": "tambahan"
+  },
+  {
+   "pertanyaan": "Resep nasi goreng yang enak?",
+   "asal": "tambahan"
+  },
+  {
+   "pertanyaan": "Berapa harga saham hari ini?",
+   "asal": "tambahan"
+  }
+ ],
+ "acuan_kontrak": {
+  "Recall@1": 0.562,
+  "Recall@3": 0.688,
+  "Recall@5": 0.812,
+  "MRR": 0.668
+ }
+}

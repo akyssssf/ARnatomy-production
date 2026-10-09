@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Uji login Google ARnatomy</title>
+  <style>
+    body { font: 15px/1.5 system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    input { width: 100%; padding: .5rem; margin: .25rem 0 1rem; box-sizing: border-box; }
+    pre { background: #f3f4f6; padding: 1rem; overflow: auto; border-radius: 6px; white-space: pre-wrap; word-break: break-all; }
+    code { background: #f3f4f6; padding: 0 .25rem; }
+  </style>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <h1>Uji login Google</h1>
+  <p>Halaman uji untuk <code>POST /v1/auth/google</code>. Buka lewat <code>http://localhost:3000</code> (origin ini harus terdaftar
+  di Authorized JavaScript origins pada OAuth client tipe Web). Tidak ada rahasia di halaman ini: cukup Client ID.</p>
+  <label>Client ID Web <input id="cid" placeholder="123456-abc.apps.googleusercontent.com"></label>
+  <label>URL backend <input id="api" value="http://localhost:4000"></label>
+  <button id="mulai">Tampilkan tombol Google</button>
+  <div id="tombol" style="margin:1rem 0"></div>
+  <h3>Respons backend</h3>
+  <pre id="hasil">(belum ada)</pre>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    $("cid").value = new URLSearchParams(location.search).get("client_id") ?? "";
+    $("mulai").onclick = () => {
+      const nonce = crypto.randomUUID();
+      google.accounts.id.initialize({
+        client_id: $("cid").value.trim(),
+        nonce,
+        callback: async ({ credential }) => {
+          const r = await fetch($("api").value.replace(/\/$/, "") + "/v1/auth/google", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ id_token: credential, nonce }),
+          });
+          $("hasil").textContent = r.status + " " + JSON.stringify(await r.json(), null, 2);
+        },
+      });
+      google.accounts.id.renderButton($("tombol"), { theme: "outline", size: "large" });
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,1299 @@
+{
+  "id": "d9a17c97-7c34-4d30-96a8-823842715972",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.ai_conversations": {
+      "name": "ai_conversations",
+      "schema": "",
+      "columns": {
+        "id_percakapan": {
+          "name": "id_percakapan",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_user": {
+          "name": "id_user",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_bagian": {
+          "name": "id_bagian",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pertanyaan": {
+          "name": "pertanyaan",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jawaban": {
+          "name": "jawaban",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "waktu": {
+          "name": "waktu",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_ai_conversations_user_waktu": {
+          "name": "idx_ai_conversations_user_waktu",
+          "columns": [
+            {
+              "expression": "id_user",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "waktu",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ai_conversations_id_user_users_id_user_fk": {
+          "name": "ai_conversations_id_user_users_id_user_fk",
+          "tableFrom": "ai_conversations",
+          "tableTo": "users",
+          "columnsFrom": [
+            "id_user"
+          ],
+          "columnsTo": [
+            "id_user"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ai_conversations_id_bagian_body_parts_id_bagian_fk": {
+          "name": "ai_conversations_id_bagian_body_parts_id_bagian_fk",
+          "tableFrom": "ai_conversations",
+          "tableTo": "body_parts",
+          "columnsFrom": [
+            "id_bagian"
+          ],
+          "columnsTo": [
+            "id_bagian"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.aset_model": {
+      "name": "aset_model",
+      "schema": "",
+      "columns": {
+        "id_aset": {
+          "name": "id_aset",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_organ": {
+          "name": "id_organ",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama_berkas": {
+          "name": "nama_berkas",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ukuran_byte": {
+          "name": "ukuran_byte",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "versi": {
+          "name": "versi",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "kunci_penyimpanan": {
+          "name": "kunci_penyimpanan",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url_penyimpanan": {
+          "name": "url_penyimpanan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "waktu_unggah": {
+          "name": "waktu_unggah",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "aset_model_id_organ_organs_id_organ_fk": {
+          "name": "aset_model_id_organ_organs_id_organ_fk",
+          "tableFrom": "aset_model",
+          "tableTo": "organs",
+          "columnsFrom": [
+            "id_organ"
+          ],
+          "columnsTo": [
+            "id_organ"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "aset_model_id_organ_unique": {
+          "name": "aset_model_id_organ_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id_organ"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "aset_model_ukuran_ck": {
+          "name": "aset_model_ukuran_ck",
+          "value": "\"aset_model\".\"ukuran_byte\" >= 0"
+        },
+        "aset_model_versi_ck": {
+          "name": "aset_model_versi_ck",
+          "value": "\"aset_model\".\"versi\" >= 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.bagian_fakta": {
+      "name": "bagian_fakta",
+      "schema": "",
+      "columns": {
+        "id_fakta": {
+          "name": "id_fakta",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_bagian": {
+          "name": "id_bagian",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nilai": {
+          "name": "nilai",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bagian_fakta_id_bagian_body_parts_id_bagian_fk": {
+          "name": "bagian_fakta_id_bagian_body_parts_id_bagian_fk",
+          "tableFrom": "bagian_fakta",
+          "tableTo": "body_parts",
+          "columnsFrom": [
+            "id_bagian"
+          ],
+          "columnsTo": [
+            "id_bagian"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.bagian_mesh": {
+      "name": "bagian_mesh",
+      "schema": "",
+      "columns": {
+        "id_mesh": {
+          "name": "id_mesh",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_bagian": {
+          "name": "id_bagian",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pola_node": {
+          "name": "pola_node",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bagian_mesh_id_bagian_body_parts_id_bagian_fk": {
+          "name": "bagian_mesh_id_bagian_body_parts_id_bagian_fk",
+          "tableFrom": "bagian_mesh",
+          "tableTo": "body_parts",
+          "columnsFrom": [
+            "id_bagian"
+          ],
+          "columnsTo": [
+            "id_bagian"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.body_parts": {
+      "name": "body_parts",
+      "schema": "",
+      "columns": {
+        "id_bagian": {
+          "name": "id_bagian",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_organ": {
+          "name": "id_organ",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent_bagian_id": {
+          "name": "parent_bagian_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nama_bagian_internal": {
+          "name": "nama_bagian_internal",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "posisi_koordinat_3d": {
+          "name": "posisi_koordinat_3d",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "posisi_2d": {
+          "name": "posisi_2d",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_body_parts_organ": {
+          "name": "idx_body_parts_organ",
+          "columns": [
+            {
+              "expression": "id_organ",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "body_parts_id_organ_organs_id_organ_fk": {
+          "name": "body_parts_id_organ_organs_id_organ_fk",
+          "tableFrom": "body_parts",
+          "tableTo": "organs",
+          "columnsFrom": [
+            "id_organ"
+          ],
+          "columnsTo": [
+            "id_organ"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "body_parts_parent_bagian_id_body_parts_id_bagian_fk": {
+          "name": "body_parts_parent_bagian_id_body_parts_id_bagian_fk",
+          "tableFrom": "body_parts",
+          "tableTo": "body_parts",
+          "columnsFrom": [
+            "parent_bagian_id"
+          ],
+          "columnsTo": [
+            "id_bagian"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "body_parts_3d_ck": {
+          "name": "body_parts_3d_ck",
+          "value": "\"body_parts\".\"posisi_koordinat_3d\" ~ '^-?[0-9]+(\\.[0-9]+)?,-?[0-9]+(\\.[0-9]+)?,-?[0-9]+(\\.[0-9]+)?$'"
+        },
+        "body_parts_2d_ck": {
+          "name": "body_parts_2d_ck",
+          "value": "\"body_parts\".\"posisi_2d\" ~ '^[0-9]+(\\.[0-9]+)?,[0-9]+(\\.[0-9]+)?$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.laporan_kesalahan": {
+      "name": "laporan_kesalahan",
+      "schema": "",
+      "columns": {
+        "id_laporan": {
+          "name": "id_laporan",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_user": {
+          "name": "id_user",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_konten": {
+          "name": "id_konten",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deskripsi_laporan": {
+          "name": "deskripsi_laporan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_tindak_lanjut": {
+          "name": "status_tindak_lanjut",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'baru'"
+        },
+        "waktu": {
+          "name": "waktu",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_laporan_status": {
+          "name": "idx_laporan_status",
+          "columns": [
+            {
+              "expression": "status_tindak_lanjut",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "waktu",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_laporan_konten": {
+          "name": "idx_laporan_konten",
+          "columns": [
+            {
+              "expression": "id_konten",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "laporan_kesalahan_id_user_users_id_user_fk": {
+          "name": "laporan_kesalahan_id_user_users_id_user_fk",
+          "tableFrom": "laporan_kesalahan",
+          "tableTo": "users",
+          "columnsFrom": [
+            "id_user"
+          ],
+          "columnsTo": [
+            "id_user"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "laporan_kesalahan_id_konten_part_content_id_konten_fk": {
+          "name": "laporan_kesalahan_id_konten_part_content_id_konten_fk",
+          "tableFrom": "laporan_kesalahan",
+          "tableTo": "part_content",
+          "columnsFrom": [
+            "id_konten"
+          ],
+          "columnsTo": [
+            "id_konten"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "laporan_status_ck": {
+          "name": "laporan_status_ck",
+          "value": "\"laporan_kesalahan\".\"status_tindak_lanjut\" IN ('baru','ditindaklanjuti')"
+        },
+        "laporan_deskripsi_ck": {
+          "name": "laporan_deskripsi_ck",
+          "value": "char_length(\"laporan_kesalahan\".\"deskripsi_laporan\") >= 10"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.layers": {
+      "name": "layers",
+      "schema": "",
+      "columns": {
+        "id_layer": {
+          "name": "id_layer",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_organ": {
+          "name": "id_organ",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama_layer": {
+          "name": "nama_layer",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "urutan_tampil": {
+          "name": "urutan_tampil",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "layers_organ_nama_uq": {
+          "name": "layers_organ_nama_uq",
+          "columns": [
+            {
+              "expression": "id_organ",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "nama_layer",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "layers_id_organ_organs_id_organ_fk": {
+          "name": "layers_id_organ_organs_id_organ_fk",
+          "tableFrom": "layers",
+          "tableTo": "organs",
+          "columnsFrom": [
+            "id_organ"
+          ],
+          "columnsTo": [
+            "id_organ"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "layers_nama_ck": {
+          "name": "layers_nama_ck",
+          "value": "\"layers\".\"nama_layer\" IN ('kulit','otot','tulang','organ_dalam')"
+        },
+        "layers_urutan_ck": {
+          "name": "layers_urutan_ck",
+          "value": "\"layers\".\"urutan_tampil\" >= 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.learning_history": {
+      "name": "learning_history",
+      "schema": "",
+      "columns": {
+        "id_riwayat": {
+          "name": "id_riwayat",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_user": {
+          "name": "id_user",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_bagian": {
+          "name": "id_bagian",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jenis_konten": {
+          "name": "jenis_konten",
+          "type": "varchar(6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "waktu_akses": {
+          "name": "waktu_akses",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "durasi": {
+          "name": "durasi",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_learning_history_user_waktu": {
+          "name": "idx_learning_history_user_waktu",
+          "columns": [
+            {
+              "expression": "id_user",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "waktu_akses",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_learning_history_bagian": {
+          "name": "idx_learning_history_bagian",
+          "columns": [
+            {
+              "expression": "id_bagian",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "learning_history_id_user_users_id_user_fk": {
+          "name": "learning_history_id_user_users_id_user_fk",
+          "tableFrom": "learning_history",
+          "tableTo": "users",
+          "columnsFrom": [
+            "id_user"
+          ],
+          "columnsTo": [
+            "id_user"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "learning_history_id_bagian_body_parts_id_bagian_fk": {
+          "name": "learning_history_id_bagian_body_parts_id_bagian_fk",
+          "tableFrom": "learning_history",
+          "tableTo": "body_parts",
+          "columnsFrom": [
+            "id_bagian"
+          ],
+          "columnsTo": [
+            "id_bagian"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "learning_history_jenis_ck": {
+          "name": "learning_history_jenis_ck",
+          "value": "\"learning_history\".\"jenis_konten\" IN ('dasar','dimmed')"
+        },
+        "learning_history_durasi_ck": {
+          "name": "learning_history_durasi_ck",
+          "value": "\"learning_history\".\"durasi\" IS NULL OR \"learning_history\".\"durasi\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.organ_fakta": {
+      "name": "organ_fakta",
+      "schema": "",
+      "columns": {
+        "id_fakta": {
+          "name": "id_fakta",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_organ": {
+          "name": "id_organ",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nilai": {
+          "name": "nilai",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "organ_fakta_id_organ_organs_id_organ_fk": {
+          "name": "organ_fakta_id_organ_organs_id_organ_fk",
+          "tableFrom": "organ_fakta",
+          "tableTo": "organs",
+          "columnsFrom": [
+            "id_organ"
+          ],
+          "columnsTo": [
+            "id_organ"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.organs": {
+      "name": "organs",
+      "schema": "",
+      "columns": {
+        "id_organ": {
+          "name": "id_organ",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nama_organ": {
+          "name": "nama_organ",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sistem_organ": {
+          "name": "sistem_organ",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "julukan": {
+          "name": "julukan",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "file_model_3d": {
+          "name": "file_model_3d",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gambar": {
+          "name": "gambar",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deskripsi": {
+          "name": "deskripsi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "organs_model_ck": {
+          "name": "organs_model_ck",
+          "value": "\"organs\".\"file_model_3d\" LIKE '%.glb'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.part_content": {
+      "name": "part_content",
+      "schema": "",
+      "columns": {
+        "id_konten": {
+          "name": "id_konten",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_bagian": {
+          "name": "id_bagian",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jenis_konten": {
+          "name": "jenis_konten",
+          "type": "varchar(6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "judul_tampil": {
+          "name": "judul_tampil",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deskripsi": {
+          "name": "deskripsi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_tampilan": {
+          "name": "status_tampilan",
+          "type": "varchar(6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_validasi": {
+          "name": "status_validasi",
+          "type": "varchar(12)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'draft'"
+        }
+      },
+      "indexes": {
+        "part_content_bagian_jenis_uq": {
+          "name": "part_content_bagian_jenis_uq",
+          "columns": [
+            {
+              "expression": "id_bagian",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "jenis_konten",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_part_content_bagian": {
+          "name": "idx_part_content_bagian",
+          "columns": [
+            {
+              "expression": "id_bagian",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "part_content_id_bagian_body_parts_id_bagian_fk": {
+          "name": "part_content_id_bagian_body_parts_id_bagian_fk",
+          "tableFrom": "part_content",
+          "tableTo": "body_parts",
+          "columnsFrom": [
+            "id_bagian"
+          ],
+          "columnsTo": [
+            "id_bagian"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "part_content_jenis_ck": {
+          "name": "part_content_jenis_ck",
+          "value": "\"part_content\".\"jenis_konten\" IN ('dasar','dimmed')"
+        },
+        "part_content_tampilan_ck": {
+          "name": "part_content_tampilan_ck",
+          "value": "\"part_content\".\"status_tampilan\" IN ('aktif','dimmed')"
+        },
+        "part_content_validasi_ck": {
+          "name": "part_content_validasi_ck",
+          "value": "\"part_content\".\"status_validasi\" IN ('draft','tervalidasi')"
+        },
+        "part_content_judul_ck": {
+          "name": "part_content_judul_ck",
+          "value": "char_length(\"part_content\".\"judul_tampil\") >= 3"
+        },
+        "part_content_deskripsi_ck": {
+          "name": "part_content_deskripsi_ck",
+          "value": "char_length(\"part_content\".\"deskripsi\") >= 20"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.sistem_organ": {
+      "name": "sistem_organ",
+      "schema": "",
+      "columns": {
+        "id_sistem": {
+          "name": "id_sistem",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nama": {
+          "name": "nama",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_organ": {
+          "name": "id_organ",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "organ": {
+          "name": "organ",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gambar": {
+          "name": "gambar",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sistem_organ_id_organ_organs_id_organ_fk": {
+          "name": "sistem_organ_id_organ_organs_id_organ_fk",
+          "tableFrom": "sistem_organ",
+          "tableTo": "organs",
+          "columnsFrom": [
+            "id_organ"
+          ],
+          "columnsTo": [
+            "id_organ"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "sistem_organ_status_ck": {
+          "name": "sistem_organ_status_ck",
+          "value": "\"sistem_organ\".\"status\" IN ('tersedia','segera')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.sus_jawaban": {
+      "name": "sus_jawaban",
+      "schema": "",
+      "columns": {
+        "id_umpan_balik": {
+          "name": "id_umpan_balik",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "no_butir": {
+          "name": "no_butir",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nilai": {
+          "name": "nilai",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sus_jawaban_id_umpan_balik_umpan_balik_id_umpan_balik_fk": {
+          "name": "sus_jawaban_id_umpan_balik_umpan_balik_id_umpan_balik_fk",
+          "tableFrom": "sus_jawaban",
+          "tableTo": "umpan_balik",
+          "columnsFrom": [
+            "id_umpan_balik"
+          ],
+          "columnsTo": [
+            "id_umpan_balik"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "sus_jawaban_id_umpan_balik_no_butir_pk": {
+          "name": "sus_jawaban_id_umpan_balik_no_butir_pk",
+          "columns": [
+            "id_umpan_balik",
+            "no_butir"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "sus_butir_ck": {
+          "name": "sus_butir_ck",
+          "value": "\"sus_jawaban\".\"no_butir\" BETWEEN 1 AND 10"
+        },
+        "sus_nilai_ck": {
+          "name": "sus_nilai_ck",
+          "value": "\"sus_jawaban\".\"nilai\" BETWEEN 1 AND 5"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.umpan_balik": {
+      "name": "umpan_balik",
+      "schema": "",
+      "columns": {
+        "id_umpan_balik": {
+          "name": "id_umpan_balik",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id_user": {
+          "name": "id_user",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "skor_sus": {
+          "name": "skor_sus",
+          "type": "numeric(4, 1)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "komentar": {
+          "name": "komentar",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "waktu": {
+          "name": "waktu",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "umpan_balik_id_user_users_id_user_fk": {
+          "name": "umpan_balik_id_user_users_id_user_fk",
+          "tableFrom": "umpan_balik",
+          "tableTo": "users",
+          "columnsFrom": [
+            "id_user"
+          ],
+          "columnsTo": [
+            "id_user"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "umpan_balik_id_user_unique": {
+          "name": "umpan_balik_id_user_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id_user"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "umpan_balik_skor_ck": {
+          "name": "umpan_balik_skor_ck",
+          "value": "\"umpan_balik\".\"skor_sus\" BETWEEN 0 AND 100"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id_user": {
+          "name": "id_user",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nama": {
+          "name": "nama",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'siswa'"
+        },
+        "asal_sekolah": {
+          "name": "asal_sekolah",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aktif": {
+          "name": "aktif",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "google_sub": {
+          "name": "google_sub",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "profil_lengkap": {
+          "name": "profil_lengkap",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "token_versi": {
+          "name": "token_versi",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        },
+        "users_google_sub_unique": {
+          "name": "users_google_sub_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "google_sub"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "users_role_ck": {
+          "name": "users_role_ck",
+          "value": "\"users\".\"role\" IN ('siswa','guru','admin')"
+        },
+        "users_masuk_ck": {
+          "name": "users_masuk_ck",
+          "value": "\"users\".\"password_hash\" IS NOT NULL OR \"users\".\"google_sub\" IS NOT NULL"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -1,0 +1,15 @@
+node_modules/
+coverage/
+dist/
+.env
+.env.*
+!.env.example
+.DS_Store
+npm-debug.log*
+
+# data lokal (basis data PGlite dan berkas unggahan mode pengembangan)
+/.data/
+/uploads/
+
+# cache model embedding (diunduh otomatis)
+/.cache/

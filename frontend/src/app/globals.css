@@ -1,0 +1,506 @@
+/* ==========================================================================
+   ARnatomy — Tailwind CSS v4 (zero-runtime, dikompilasi saat build) + kelas
+   khusus di luar jangkauan utility: tipografi, titik interaktif kanvas 3D,
+   panel geser, kaca, dan motion. Token warna/fon didaftarkan lewat @theme
+   sehingga bisa dipakai sebagai utility (bg-biru, text-abu, font-tampilan).
+   ========================================================================== */
+@import "tailwindcss";
+
+@theme {
+  /* Biru merek: #1566f4 memberi kontras 4,95:1 dengan teks putih (WCAG AA) */
+  --color-biru: #1566f4;
+  --color-biru-gelap: #0d55d9;
+  --color-latar: #e6e8eb;
+  --color-abu: #f1f2f4;
+  /* Abu-abu teks Tailwind dipetakan ulang agar lolos kontras 4,5:1 di atas
+     latar #e6e8eb dan kartu #f1f2f4 (neutral-500 bawaan hanya 3,9:1) */
+  --color-neutral-400: #646870;
+  --color-neutral-500: #5b5f66;
+
+  /* Variabel fon disuntikkan next/font di <html> (lihat app/layout.tsx) */
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-tampilan: var(--font-inter-tight), var(--font-inter), system-ui, sans-serif;
+
+  --ease-lengkung: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+:root {
+  --biru: #1566f4;
+  --lengkung: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    background: var(--color-latar);
+    color: #171717;
+  }
+  h1,
+  h2,
+  h3,
+  .tampilan {
+    font-family: var(--font-tampilan);
+    letter-spacing: -0.035em;
+  }
+  /* Fokus keyboard yang konsisten di seluruh aplikasi */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--biru);
+    outline-offset: 2px;
+    border-radius: 0.75rem;
+  }
+  #konten-utama:focus,
+  #judul-panel:focus {
+    outline: none;
+  }
+}
+
+/* Kelas komponen di layer components agar utility Tailwind bisa menimpanya */
+@layer components {
+  /* Motif titik biru di akhir judul: glif inline supaya tidak turun baris sendiri */
+  .titik-biru::after {
+    content: "\25CF";
+    margin-left: 0.22em;
+    font-size: 0.42em;
+    line-height: 0;
+    vertical-align: 0.28em;
+    color: var(--biru);
+  }
+
+  /* Label mikro berawalan garis miring: "/ ORGAN" */
+  .mikro {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #646870;
+  }
+  .mikro::before {
+    content: "/ ";
+    color: var(--biru);
+  }
+
+  .nav-miring > li + li::before {
+    content: "/";
+    margin: 0 0.9rem;
+    color: #b8bcc4;
+    font-weight: 400;
+  }
+
+  /* Skip link: hanya terlihat saat difokus keyboard */
+  .tautan-lewati {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 100;
+    border-radius: 9999px;
+    background: var(--biru);
+    padding: 0.5rem 1.1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    transition: top 0.15s ease;
+  }
+  .tautan-lewati:focus {
+    top: 1rem;
+  }
+
+  /* Strip marquee biru */
+  .marquee {
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--biru);
+    color: #fff;
+    white-space: nowrap;
+  }
+  .marquee-jalur {
+    display: inline-flex;
+    animation: marquee 28s linear infinite;
+  }
+  .marquee-jalur > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.7rem 0.625rem;
+    font-family: var(--font-tampilan);
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .marquee-jalur > span::after {
+    content: "+";
+    font-weight: 400;
+    opacity: 0.75;
+  }
+
+  /* Piringan putih di belakang organ */
+  .piringan-organ {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    aspect-ratio: 1;
+    width: min(72%, 25rem);
+    transform: translate(-50%, -50%);
+    border-radius: 9999px;
+    background: radial-gradient(circle at 50% 40%, #fff 0%, #f5f6f8 55%, rgba(245, 246, 248, 0) 72%);
+    pointer-events: none;
+  }
+
+  /* --- Titik interaktif di atas kanvas 3D -------------------------------
+     Posisi diatur src/three/viewer3d.ts lewat transform tiap frame. */
+  .titik-3d {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: opacity 0.2s ease;
+  }
+  .nomor-titik {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    width: 100%;
+    border-radius: 9999px;
+    background: #fff;
+    color: #111827;
+    font-size: 0.68rem;
+    font-weight: 600;
+    box-shadow:
+      0 0 0 3px rgba(255, 255, 255, 0.45),
+      0 4px 14px rgba(17, 24, 39, 0.22);
+    transition:
+      transform 0.18s ease,
+      background 0.18s ease,
+      color 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+  .titik-3d:hover .nomor-titik,
+  .titik-3d:focus-visible .nomor-titik {
+    transform: scale(1.12);
+  }
+  .titik-3d[aria-pressed="true"] .nomor-titik {
+    background: var(--biru);
+    color: #fff;
+    box-shadow:
+      0 0 0 4px rgba(26, 109, 255, 0.22),
+      0 6px 18px rgba(26, 109, 255, 0.4);
+  }
+  .nama-titik {
+    position: absolute;
+    left: calc(100% + 0.5rem);
+    top: 50%;
+    white-space: nowrap;
+    border-radius: 9999px;
+    background: rgba(17, 24, 39, 0.78);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    padding: 0.3rem 0.75rem;
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+    opacity: 0;
+    transform: translate(-0.35rem, -50%);
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease;
+  }
+  .titik-3d:hover .nama-titik,
+  .titik-3d:focus-visible .nama-titik,
+  .titik-3d[aria-pressed="true"] .nama-titik {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+  .titik-tertutup {
+    opacity: 0.28;
+  }
+  .titik-tertutup .nama-titik {
+    opacity: 0;
+  }
+  /* Mode cadangan dua dimensi: posisi memakai persen */
+  .titik-2d .titik-3d {
+    transform: translate(-50%, -50%);
+  }
+
+  /* Akordeon label dimmed (expand in-place) */
+  .akordeon {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.25s ease;
+  }
+  .akordeon-terbuka {
+    max-height: 32rem;
+  }
+
+  /* --- Kaca (glassmorphism), tidak dipakai pada elemen sticky ------------ */
+  .kaca {
+    background: rgba(255, 255, 255, 0.52);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow:
+      0 12px 40px rgba(17, 24, 39, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    backdrop-filter: blur(18px) saturate(1.5);
+  }
+  .kaca-gelap {
+    background: rgba(17, 24, 39, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #fff;
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    backdrop-filter: blur(18px) saturate(1.3);
+  }
+  .kaca-tebal {
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  /* --- Navigasi kaca mengambang: lebar di atas, menyusut jadi ikon saat digulir */
+  .nav-kaca {
+    box-shadow:
+      0 14px 40px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    transition: padding 0.35s var(--lengkung);
+  }
+  .nav-label {
+    display: inline-block;
+    max-width: 9rem;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 1;
+    transition:
+      max-width 0.35s var(--lengkung),
+      opacity 0.2s ease,
+      margin 0.35s var(--lengkung);
+  }
+  .nav-butir {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+    transition:
+      padding 0.35s var(--lengkung),
+      background 0.2s ease,
+      color 0.2s ease;
+  }
+  .nav-ringkas .nav-label {
+    max-width: 0;
+    opacity: 0;
+    margin-left: -0.5rem;
+  }
+  .nav-ringkas .nav-butir {
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+  }
+  @media (max-width: 767px) {
+    .nav-label {
+      max-width: 0;
+      opacity: 0;
+      margin-left: -0.5rem;
+    }
+    .nav-butir {
+      padding-left: 0.7rem;
+      padding-right: 0.7rem;
+    }
+  }
+
+  /* --- Panel penjelasan di dalam penampil: dari kanan (lebar) / bawah (sempit) */
+  .panel-samping {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 20;
+    width: min(25rem, calc(100% - 2rem));
+    opacity: 0;
+    transform: translateX(calc(100% + 1.5rem));
+    transition:
+      transform 0.55s var(--lengkung),
+      opacity 0.35s ease;
+    will-change: transform;
+  }
+  .panel-samping.terbuka {
+    opacity: 1;
+    transform: none;
+  }
+  @media (max-width: 767px) {
+    .panel-samping {
+      top: auto;
+      left: 0.5rem;
+      right: 0.5rem;
+      bottom: 0.5rem;
+      width: auto;
+      max-height: 56%;
+      transform: translateY(calc(100% + 1.5rem));
+    }
+  }
+
+  /* --- Motion: hanya transform & opacity ---------------------------------- */
+  .muncul {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.6s var(--lengkung),
+      transform 0.6s var(--lengkung);
+  }
+  .muncul.tampak {
+    opacity: 1;
+    transform: none;
+  }
+  /* Varian CSS-only untuk lipatan atas: tidak menunggu JavaScript. Hanya
+     transform yang dianimasikan — animasi opacity membuat kandidat LCP gambar
+     baru tercatat pada repaint berikutnya (bisa >1 detik kemudian). */
+  .muncul-segera {
+    animation: muncul-geser 0.7s var(--lengkung) both;
+  }
+
+  .kata {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+  }
+  .kata > span {
+    display: inline-block;
+    transform: translateY(110%);
+    animation: naik 0.9s var(--lengkung) forwards;
+  }
+
+  .halaman-masuk {
+    animation: halaman 0.55s var(--lengkung);
+  }
+  .melayang {
+    animation: melayang 7s ease-in-out infinite;
+  }
+  .melayang-lambat {
+    animation: melayang 10s ease-in-out infinite reverse;
+  }
+  .titik-biru.denyut::after {
+    animation: denyut 3s ease-in-out infinite;
+  }
+
+  .kartu-angkat {
+    transition:
+      transform 0.25s var(--lengkung),
+      box-shadow 0.25s var(--lengkung);
+  }
+  .kartu-angkat:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 44px rgba(17, 24, 39, 0.08);
+  }
+
+  .organ-abu {
+    filter: grayscale(1) contrast(1.05);
+    transition:
+      filter 0.3s ease,
+      transform 0.45s var(--lengkung);
+  }
+  .group:hover .organ-abu {
+    filter: none;
+    transform: scale(1.06) rotate(-4deg);
+  }
+
+  /* Kanvas hero: gambar statis tampil dulu, memudar begitu 3D siap */
+  .hero-gambar {
+    transition: opacity 0.8s ease;
+  }
+  .hero-3d-siap .hero-gambar {
+    opacity: 0;
+  }
+
+  /* Skeleton loading.tsx */
+  .tulang {
+    background: rgba(255, 255, 255, 0.7);
+    animation: kedip 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes muncul-geser {
+  from {
+    transform: translateY(18px);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes naik {
+  to {
+    transform: none;
+  }
+}
+@keyframes halaman {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes melayang {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+@keyframes denyut {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+@keyframes kedip {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Hormati preferensi pengguna yang mengurangi animasi */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+  .marquee-jalur,
+  .melayang,
+  .melayang-lambat {
+    animation: none;
+  }
+  .muncul,
+  .muncul-segera {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .kata > span {
+    opacity: 1;
+    transform: none;
+  }
+}

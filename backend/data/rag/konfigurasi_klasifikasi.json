@@ -1,0 +1,20 @@
+{
+  "jenis": "llm_classification",
+  "project": "ARnatomy",
+  "mode": "zero-shot",
+  "kategori": [
+    "Peredaran Darah",
+    "Pernapasan",
+    "Di luar cakupan"
+  ],
+  "instruksi": "Kamu pengelompok pertanyaan di aplikasi belajar anatomi ARnatomy. Tentukan sistem organ yang dibahas pertanyaan siswa. Pilih salah satu: Peredaran Darah, Pernapasan, Di luar cakupan. Pilih \"Di luar cakupan\" jika bukan tentang peredaran darah atau pernapasan. Jawab HANYA nama kategorinya.",
+  "contoh": "",
+  "template_prompt": "{instruksi}\n\n{contoh}Pertanyaan: {pertanyaan}\nKategori:",
+  "jika_tidak_cocok": "Lainnya",
+  "base_url": "https://api.groq.com/openai/v1/",
+  "model_llm": "openai/gpt-oss-20b",
+  "temperature": 0,
+  "max_tokens": 2000,
+  "reasoning_effort": "low",
+  "akurasi_uji": 1.0
+}

@@ -1,0 +1,42 @@
+# Reverse proxy Nginx untuk backend ARnatomy (SKPL Bab V.c: Ubuntu 22.04 + Nginx).
+# Salin ke /etc/nginx/sites-available/arnatomy-api, ganti api.contoh.ac.id, lalu:
+#   sudo ln -s /etc/nginx/sites-available/arnatomy-api /etc/nginx/sites-enabled/
+#   sudo certbot --nginx -d api.contoh.ac.id      (HTTPS gratis dari Let's Encrypt; atau pakai sertifikat kampus)
+#   sudo nginx -t && sudo systemctl reload nginx
+# Di .env backend wajib: TRUST_PROXY=true dan CORS_ORIGINS berisi alamat frontend (https://...).
+
+upstream arnatomy_api {
+    server 127.0.0.1:4000;
+    keepalive 16;
+}
+
+server {
+    listen 80;
+    server_name api.contoh.ac.id;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name api.contoh.ac.id;
+
+    ssl_certificate     /etc/letsencrypt/live/api.contoh.ac.id/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.contoh.ac.id/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+
+    # Unggahan model 3D maksimal 15 MB (backend menolak yang lebih besar); beri sedikit ruang untuk multipart
+    client_max_body_size 16m;
+
+    location / {
+        proxy_pass http://arnatomy_api;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # Jawaban asisten AI bisa memakan waktu beberapa detik
+        proxy_read_timeout 60s;
+    }
+}

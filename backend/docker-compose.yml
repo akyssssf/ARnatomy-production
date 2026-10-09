@@ -1,0 +1,55 @@
+# Menjalankan backend + PostgreSQL dengan satu perintah:  docker compose up --build
+# Ganti JWT_SECRET dan sandi basis data sebelum dipakai di luar mesin sendiri.
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: arnatomy
+      POSTGRES_PASSWORD: arnatomy
+      POSTGRES_DB: arnatomy
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arnatomy"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PORT_HOST:-4000}:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgres://arnatomy:arnatomy@db:5432/arnatomy
+      JWT_SECRET: ${JWT_SECRET:?isi JWT_SECRET (minimal 32 karakter) di berkas .env}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      GOOGLE_CLIENT_IDS: ${GOOGLE_CLIENT_IDS:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-lokal}
+      STORAGE_DIR: /data/uploads
+      STORAGE_PUBLIC_URL: ${STORAGE_PUBLIC_URL:-http://localhost:4000/files}
+      UV_THREADPOOL_SIZE: 8
+      # RAG: q8 (bawaan, ±700 MB RAM), fp32 (±1,2 GB), atau off (TF-IDF saja, untuk server < 1 GB)
+      RAG_EMBEDDING: ${RAG_EMBEDDING:-q8}
+    volumes:
+      - uploads:/data/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  uploads:
