@@ -73,7 +73,8 @@ function FormSoal({
         </legend>
         <div className="mt-1 space-y-2">
           {d.pilihan.map((p, i) => (
-            <div key={`${i}-${d.pilihan.length}`} className="flex items-center gap-2">
+            // biome-ignore lint/suspicious/noArrayIndexKey: pilihan belum punya id; urutan = identitasnya dan daftar pendek
+            <div key={i} className="flex items-center gap-2">
               <input
                 type="radio"
                 name="benar"

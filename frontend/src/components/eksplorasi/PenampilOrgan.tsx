@@ -83,6 +83,10 @@ export function PenampilOrgan({
   const [statusLayer, setStatusLayer] = useState("");
   const [laporUntuk, setLaporUntuk] = useState<BodyPart | null>(null);
   const [modeAR, setModeAR] = useState<ModeAR>("mati");
+  /* Pilihan mode saat pertama masuk (AR kamera atau 3D saja); diingat selama sesi peramban */
+  const [tanyaMode, setTanyaMode] = useState(false);
+  const [galatKamera, setGalatKamera] = useState<string | null>(null);
+  const sudahDitanya = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const aliranKamera = useRef<MediaStream | null>(null);
 
@@ -284,6 +288,13 @@ export function PenampilOrgan({
   async function masukAR() {
     const instans = penampil.current;
     if (!instans) return;
+    setGalatKamera(null);
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      setGalatKamera(
+        "Kamera hanya dapat dipakai lewat koneksi aman (HTTPS). Buka situs lewat alamat https://, lalu coba lagi. Sementara itu, model tetap dapat dijelajahi dalam mode 3D.",
+      );
+      return;
+    }
     if (await dukungWebXR()) {
       try {
         /* sesi bisa diakhiri dari gestur sistem: state ikut kembali ke "mati" */
@@ -316,14 +327,47 @@ export function PenampilOrgan({
       tampilkanToast("Mode AR kamera: seret untuk memutar model di atas tampilan kamera.", "info");
     } catch (kesalahan) {
       const ditolak = kesalahan instanceof DOMException && kesalahan.name === "NotAllowedError";
-      tampilkanToast(
+      setGalatKamera(
         ditolak
-          ? "Izin kamera ditolak. Mode AR memerlukan akses kamera."
-          : "Kamera tidak tersedia di perangkat ini; mode AR tetap disimulasikan dengan model 3D.",
-        "error",
+          ? "Izin kamera ditolak. Izinkan kamera pada pengaturan situs di peramban, lalu pilih mode AR lagi. Model tetap dapat dijelajahi dalam mode 3D."
+          : "Kamera tidak ditemukan atau sedang dipakai aplikasi lain. Model tetap dapat dijelajahi dalam mode 3D.",
       );
     }
   }
+
+  /* Pilihan mode: dapat diganti kapan saja lewat pengalih di kanan atas */
+  function simpanPilihan(nilai: "3d" | "ar") {
+    try {
+      sessionStorage.setItem("arnatomy_mode_eksplorasi", nilai);
+    } catch {
+      /* penyimpanan sesi tidak tersedia: pilihan berlaku untuk halaman ini saja */
+    }
+  }
+  async function pilihMode(nilai: "3d" | "ar") {
+    simpanPilihan(nilai);
+    setTanyaMode(false);
+    setGalatKamera(null);
+    if (nilai === "3d") {
+      if (modeAR !== "mati") await keluarAR();
+    } else if (modeAR === "mati") {
+      await masukAR();
+    }
+  }
+
+  /* Penampil siap: ikuti pilihan yang diingat, atau tanyakan sekali */
+  // biome-ignore lint/correctness/useExhaustiveDependencies: hanya dijalankan sekali ketika penampil pertama kali siap
+  useEffect(() => {
+    if (!mode3d || sudahDitanya.current) return;
+    sudahDitanya.current = true;
+    let tersimpan: string | null = null;
+    try {
+      tersimpan = sessionStorage.getItem("arnatomy_mode_eksplorasi");
+    } catch {
+      tersimpan = null;
+    }
+    if (tersimpan === "ar") void masukAR();
+    else if (tersimpan !== "3d") setTanyaMode(true);
+  }, [mode3d]);
 
   /* ---------- FR-04: alat kamera ---------- */
   function jalankanAlat(aksi: (typeof ALAT)[number]["aksi"]) {
@@ -484,23 +528,90 @@ export function PenampilOrgan({
               ))}
             </div>
 
-            {modeAR === "mati" ? (
-              <p className="mikro kaca pointer-events-none absolute right-4 top-4 hidden rounded-full px-3 py-1.5 sm:block">
+            {/* Pengalih mode: jelajah 3D saja atau AR dengan kamera; dapat diganti kapan saja */}
+            <fieldset className="kaca absolute right-3 top-3 z-10 m-0 flex min-w-0 items-center gap-0.5 rounded-full border-0 p-1 sm:right-4 sm:top-4">
+              <legend className="sr-only">Mode tampilan</legend>
+              <button
+                type="button"
+                aria-pressed={modeAR === "mati"}
+                onClick={() => void pilihMode("3d")}
+                disabled={!mode3d}
+                className="rounded-full px-3 py-1.5 text-xs font-semibold text-neutral-600 transition aria-pressed:bg-neutral-900 aria-pressed:text-white disabled:opacity-50"
+              >
+                Jelajah 3D
+              </button>
+              <button
+                type="button"
+                aria-pressed={modeAR !== "mati"}
+                onClick={() => void pilihMode("ar")}
+                disabled={!mode3d}
+                className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-neutral-600 transition aria-pressed:bg-biru aria-pressed:text-white disabled:opacity-50"
+              >
+                <Ikon nama="kamera" kelas="h-3.5 w-3.5" />
+                {modeAR === "xr" ? "AR (WebXR)" : "AR kamera"}
+              </button>
+            </fieldset>
+            {modeAR === "mati" && (
+              <p className="mikro kaca pointer-events-none absolute right-4 top-16 hidden rounded-full px-3 py-1.5 lg:block">
                 Seret untuk memutar &middot; Ctrl + gulir untuk zoom
               </p>
-            ) : (
+            )}
+
+            {galatKamera && (
               <div
-                role="status"
-                className="kaca absolute right-4 top-4 z-10 flex items-center gap-2 rounded-full py-1 pl-3 pr-1"
+                role="alert"
+                className="kaca absolute inset-x-3 top-16 z-20 rounded-2xl p-4 text-xs leading-relaxed text-neutral-800 sm:left-auto sm:right-4 sm:max-w-sm"
               >
-                <span className="mikro">{modeAR === "xr" ? "Mode AR (WebXR)" : "Mode AR (kamera)"}</span>
+                <p>{galatKamera}</p>
                 <button
                   type="button"
-                  onClick={() => void keluarAR()}
-                  className={tombol({ variant: "sekunder", ukuran: "sm" })}
+                  onClick={() => {
+                    simpanPilihan("3d");
+                    setGalatKamera(null);
+                  }}
+                  className={`${tombol({ variant: "sekunder", ukuran: "sm" })} mt-3`}
                 >
-                  Keluar AR
+                  Lanjut dengan 3D
                 </button>
+              </div>
+            )}
+
+            {/* Pilihan awal mode (sekali per sesi) */}
+            {tanyaMode && mode3d && (
+              <div
+                role="dialog"
+                aria-modal="false"
+                aria-label="Pilih mode tampilan"
+                className="absolute inset-0 z-30 grid place-items-center bg-black/35 p-4 backdrop-blur-[2px]"
+              >
+                <div className="w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl sm:p-6">
+                  <p className="mikro">Mode tampilan</p>
+                  <h2 className="titik-biru mt-2 text-2xl font-semibold leading-tight">Mau coba AR?</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+                    Dengan AR, model {organ.nama_organ.toLowerCase()} tampil di atas tampilan kamera perangkatmu. Kamu
+                    bisa kembali ke mode 3D biasa atau berpindah mode kapan saja lewat tombol di kanan atas.
+                  </p>
+                  <div className="mt-5 grid gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => void pilihMode("ar")}
+                      className={tombol({ ukuran: "lg", lebar: "penuh" })}
+                    >
+                      <Ikon nama="kamera" /> Coba AR dengan kamera
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void pilihMode("3d")}
+                      className={tombol({ variant: "garis", ukuran: "lg", lebar: "penuh" })}
+                    >
+                      Jelajahi 3D saja
+                    </button>
+                  </div>
+                  <p className="mt-3 text-[11px] leading-relaxed text-neutral-500">
+                    AR memerlukan izin kamera dan koneksi HTTPS. Video kamera tidak direkam dan tidak dikirim ke mana
+                    pun.
+                  </p>
+                </div>
               </div>
             )}
 
