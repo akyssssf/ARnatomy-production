@@ -21,7 +21,7 @@ D3 Teknik Informatika, Sekolah Vokasi UNS.
 | Validasi | Zod 4 | Satu skema untuk validasi runtime dan tipe |
 | Auth | JWT HS256 (`jose`) + bcrypt (`@node-rs/bcrypt`, cost 12) | Sesuai SKPL; bcrypt jalan di thread pool |
 | Login Google | `google-auth-library` (OpenID Connect) | Android, iOS, web memakai endpoint yang sama |
-| Asisten AI | **RAG berbasis buku** (hybrid embedding + TF-IDF, 412 chunk dari 4 buku PDF) + LLM lewat REST: Gemini (bawaan) / Groq / OpenRouter, Anthropic / OpenAI opsional; jawaban cadangan lokal | Kontrak komponen AI dari tugas Sistem Cerdas (`data/rag/KONTRAK.md`); kunci API tidak pernah ke klien |
+| Asisten AI | **RAG berbasis buku** (hybrid embedding + TF-IDF, 412 chunk dari 4 buku PDF) + LLM lewat REST: Gemini (bawaan) / Groq / OpenRouter, Anthropic / OpenAI opsional, **Ollama (LLM lokal di server sendiri)**; jawaban cadangan lokal | Kontrak komponen AI dari tugas Sistem Cerdas (`data/rag/KONTRAK.md`); kunci API tidak pernah ke klien |
 | Aset 3D | Object storage: lokal (dev) atau S3-compatible (R2/S3/MinIO) | SKPL Bab V.b: cloud storage |
 | Mutu | Vitest + v8 coverage, Biome, GitHub Actions | Sama dengan praktik repositori klien |
 

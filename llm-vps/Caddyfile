@@ -1,0 +1,12 @@
+# Menolak semua permintaan tanpa header "Authorization: Bearer <LLM_API_KEY>", lalu meneruskan ke Ollama.
+{$LLM_DOMAIN} {
+	@tanpa_kunci not header Authorization "Bearer {$LLM_API_KEY}"
+	respond @tanpa_kunci "unauthorized" 401
+
+	reverse_proxy ollama:11434 {
+		# jawaban LLM di CPU bisa lama
+		transport http {
+			response_header_timeout 120s
+		}
+	}
+}

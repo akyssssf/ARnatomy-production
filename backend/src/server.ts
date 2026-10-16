@@ -30,9 +30,11 @@ const app = buatApp({
 });
 
 console.log(
-  cfg.LLM_API_KEY
-    ? `Asisten AI: ${cfg.LLM_PROVIDER} (kunci terpasang)`
-    : "Asisten AI: tanpa LLM_API_KEY, memakai jawaban lokal",
+  cfg.LLM_PROVIDER === "ollama"
+    ? `Asisten AI: ollama (LLM lokal) di ${cfg.LLM_BASE_URL ?? "http://localhost:11434/v1"}, model ${cfg.LLM_MODEL ?? "qwen2.5:3b"}`
+    : cfg.LLM_API_KEY
+      ? `Asisten AI: ${cfg.LLM_PROVIDER} (kunci terpasang)`
+      : "Asisten AI: tanpa LLM_API_KEY, memakai jawaban lokal",
 );
 const server = serve({ fetch: app.fetch, port: cfg.PORT }, (info) => {
   console.log(`ARnatomy backend siap di http://localhost:${info.port} (db: ${koneksi.jenis}, demo: ${cfg.seedDemo})`);

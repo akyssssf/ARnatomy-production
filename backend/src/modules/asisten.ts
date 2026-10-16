@@ -18,6 +18,8 @@ import { KlasifikasiSchema, PertanyaanSchema } from "../schemas";
 
 const BASIS: Record<string, { fungsi: string; letak: string; gangguan: string; ringkas: string }> = seed.pengetahuan_ai;
 const BATAS_WAKTU_MS = 12_000;
+/* LLM lokal (CPU) lebih lambat; di bawah batas 30 dtk milik frontend (BFF) */
+const BATAS_WAKTU_OLLAMA_MS = 25_000;
 const MAKS_PANJANG = 1200;
 /* Hanya anjuran pengobatan yang diblokir; istilah medis dalam penjelasan buku (mis. "diagnosis PPOK") tetap boleh */
 const POLA_SARAN_MEDIS =
@@ -104,29 +106,40 @@ export const PRASETEL_LLM: Record<string, PraSetelLlm> = {
   openrouter: { baseUrl: "https://openrouter.ai/api/v1", model: "meta-llama/llama-3.3-70b-instruct:free" },
   anthropic: { baseUrl: "https://api.anthropic.com/v1", model: "claude-haiku-4-5-20251001" },
   openai: { baseUrl: "https://api.openai.com/v1", model: "gpt-4o-mini" },
+  /* Server sendiri (Ollama, API OpenAI-compatible). Kunci opsional: hanya perlu bila di belakang proxy berkunci. */
+  ollama: { baseUrl: "http://localhost:11434/v1", model: "qwen2.5:3b" },
 };
 
 /** Klien LLM; null bila kunci tidak diatur, gagal, atau melewati batas waktu (pemanggil memakai cadangan lokal). */
 export function buatKlienLlm(
-  cfg: Pick<Konfigurasi, "LLM_PROVIDER" | "LLM_API_KEY" | "LLM_MODEL" | "LLM_BASE_URL">,
+  cfg: Pick<Konfigurasi, "LLM_PROVIDER" | "LLM_API_KEY" | "LLM_MODEL" | "LLM_BASE_URL" | "LLM_TIMEOUT_DETIK">,
   fetcher: typeof fetch = fetch,
   peringatan: (pesan: string) => void = (pesan) => console.warn(pesan),
 ): KlienLlm {
   const prasetel = PRASETEL_LLM[cfg.LLM_PROVIDER] as PraSetelLlm;
   const baseUrl = (cfg.LLM_BASE_URL ?? prasetel.baseUrl).replace(/\/$/, "");
   const model = cfg.LLM_MODEL ?? prasetel.model;
+  const lokal = cfg.LLM_PROVIDER === "ollama";
+  const batasMs = cfg.LLM_TIMEOUT_DETIK ? cfg.LLM_TIMEOUT_DETIK * 1000 : lokal ? BATAS_WAKTU_OLLAMA_MS : BATAS_WAKTU_MS;
   return async (sistem, pertanyaan, opsi) => {
-    if (!cfg.LLM_API_KEY) return null;
+    if (!cfg.LLM_API_KEY && !lokal) return null;
     const pengendali = new AbortController();
-    const penghitung = setTimeout(() => pengendali.abort(), BATAS_WAKTU_MS);
+    const penghitung = setTimeout(() => pengendali.abort(), batasMs);
     try {
       const anthropic = cfg.LLM_PROVIDER === "anthropic";
       const respons = await fetcher(anthropic ? `${baseUrl}/messages` : `${baseUrl}/chat/completions`, {
         method: "POST",
         signal: pengendali.signal,
         headers: anthropic
-          ? { "Content-Type": "application/json", "x-api-key": cfg.LLM_API_KEY, "anthropic-version": "2023-06-01" }
-          : { "Content-Type": "application/json", Authorization: `Bearer ${cfg.LLM_API_KEY}` },
+          ? {
+              "Content-Type": "application/json",
+              "x-api-key": cfg.LLM_API_KEY ?? "",
+              "anthropic-version": "2023-06-01",
+            }
+          : {
+              "Content-Type": "application/json",
+              ...(cfg.LLM_API_KEY && { Authorization: `Bearer ${cfg.LLM_API_KEY}` }),
+            },
         body: JSON.stringify(
           anthropic
             ? {

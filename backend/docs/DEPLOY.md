@@ -92,7 +92,8 @@ Gunakan `deploy/nginx.conf.example` (sintaksnya sudah diuji dengan `nginx -t`): 
 | `CORS_ORIGINS` | **ya** | Alamat klien web yang diizinkan, dipisah koma: `https://arnatomy.vercel.app,https://web.contoh.ac.id` |
 | `TRUST_PROXY` | ya bila di belakang Nginx | `true` |
 | `GOOGLE_CLIENT_IDS` | untuk login Google | Client ID (Web, Android, iOS) dipisah koma. Di Google Cloud Console, tambahkan domain klien ke *Authorized JavaScript origins* |
-| `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL` | untuk asisten AI | Bawaan `gemini`. Tanpa kunci: jawaban dari basis pengetahuan lokal |
+| `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL` | untuk asisten AI | Bawaan `gemini`. Tanpa kunci: jawaban dari basis pengetahuan lokal. `LLM_PROVIDER=ollama` memakai LLM di server sendiri (kunci opsional) bersama `LLM_BASE_URL`; panduan VPS di `arnatomy-deploy/llm-vps` |
+| `LLM_BASE_URL`, `LLM_TIMEOUT_DETIK` | opsional | Alamat API OpenAI-compatible; batas tunggu 3-28 detik (bawaan 12, ollama 25) |
 | `RAG_EMBEDDING` | tidak | `q8` (bawaan), `fp32`, atau `off` untuk server 1 GB |
 | `STORAGE_DRIVER`, `STORAGE_DIR`, `STORAGE_PUBLIC_URL` | tidak | Bawaan `lokal` (folder `uploads` di volume Docker). Bila memakai `lokal` di produksi, atur Nginx menyajikan `/files/` atau biarkan backend menyajikannya; `STORAGE_PUBLIC_URL` harus `https://api.contoh.ac.id/files` |
 | `S3_*` | bila `STORAGE_DRIVER=s3` | Endpoint, bucket, kunci akses object storage (R2, S3, MinIO-kompatibel) |

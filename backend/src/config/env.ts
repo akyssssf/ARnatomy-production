@@ -39,11 +39,13 @@ const SKEMA = z.object({
   /* Asisten AI: penyedia LLM. Kunci kosong = jawaban dari basis pengetahuan lokal. */
   LLM_PROVIDER: z.preprocess(
     kosongJadiUndefined,
-    z.enum(["gemini", "groq", "openrouter", "anthropic", "openai"]).default("gemini"),
+    z.enum(["gemini", "groq", "openrouter", "anthropic", "openai", "ollama"]).default("gemini"),
   ),
   LLM_API_KEY: opsional(z.string().min(1)),
   LLM_MODEL: opsional(z.string().min(1)),
   LLM_BASE_URL: opsional(z.url()),
+  /* Batas tunggu jawaban LLM (detik). Bawaan 12 untuk layanan cloud, 25 untuk ollama (CPU lebih lambat). */
+  LLM_TIMEOUT_DETIK: opsional(z.coerce.number().int().min(3).max(28)),
   STORAGE_DRIVER: z.preprocess(kosongJadiUndefined, z.enum(["lokal", "s3"]).default("lokal")),
   STORAGE_DIR: z.preprocess(kosongJadiUndefined, z.string().default("./uploads")),
   STORAGE_PUBLIC_URL: z.preprocess(kosongJadiUndefined, z.string().default("http://localhost:4000/files")),

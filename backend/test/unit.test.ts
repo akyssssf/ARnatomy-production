@@ -101,6 +101,35 @@ describe("asisten: pemeriksaan keluaran dan klien LLM", () => {
     expect(periksaKeluaran("Diagnosis PPOK dibuat dengan spirometri.")).toContain("spirometri");
     expect(periksaKeluaran("  Jantung memompa darah.  ")).toBe("Jantung memompa darah.");
   });
+  it("klien LLM ollama: jalan tanpa kunci, tanpa header Authorization, alamat dan model dari konfigurasi", async () => {
+    const tangkap: { url: string; header: Record<string, string>; body: { model: string } }[] = [];
+    const palsu = (async (url: string, init: RequestInit) => {
+      tangkap.push({ url, header: init.headers as Record<string, string>, body: JSON.parse(init.body as string) });
+      return new Response(JSON.stringify({ choices: [{ message: { content: " Halo dari Ollama " } }] }), {
+        status: 200,
+      });
+    }) as unknown as typeof fetch;
+    const dasar = {
+      LLM_PROVIDER: "ollama" as const,
+      LLM_API_KEY: undefined,
+      LLM_MODEL: undefined,
+      LLM_BASE_URL: undefined,
+    };
+    expect(await buatKlienLlm(dasar, palsu)("s", "q")).toBe("Halo dari Ollama");
+    expect(tangkap[0]?.url).toBe("http://localhost:11434/v1/chat/completions");
+    expect(tangkap[0]?.header.Authorization).toBeUndefined();
+    expect(tangkap[0]?.body.model).toBe("qwen2.5:3b");
+    const jauh = {
+      ...dasar,
+      LLM_API_KEY: "rahasia",
+      LLM_MODEL: "llama3.2:3b",
+      LLM_BASE_URL: "https://llm.contoh.id/v1",
+    };
+    expect(await buatKlienLlm(jauh, palsu)("s", "q")).toBe("Halo dari Ollama");
+    expect(tangkap[1]?.url).toBe("https://llm.contoh.id/v1/chat/completions");
+    expect(tangkap[1]?.header.Authorization).toBe("Bearer rahasia");
+    expect(tangkap[1]?.body.model).toBe("llama3.2:3b");
+  });
   it("klien LLM: null tanpa kunci; format OpenAI-compatible (Gemini/Groq) dan Anthropic dibaca benar", async () => {
     const gemini = {
       LLM_PROVIDER: "gemini" as const,

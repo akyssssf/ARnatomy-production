@@ -1,0 +1,32 @@
+# LLM lokal untuk asisten ARnatomy: Ollama + Caddy (HTTPS otomatis + kunci Bearer).
+# Hanya Caddy (80/443) yang terbuka ke internet; Ollama tidak punya autentikasi sehingga TIDAK dipublikasikan.
+#   cp .env.example .env   (isi LLM_DOMAIN dan LLM_API_KEY)   lalu   docker compose up -d
+#   docker compose exec ollama ollama pull qwen2.5:3b
+services:
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: 24h      # model tetap di RAM, jawaban pertama tidak lambat
+      OLLAMA_NUM_PARALLEL: 2
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - ollama
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      LLM_DOMAIN: ${LLM_DOMAIN:?isi LLM_DOMAIN di berkas .env}
+      LLM_API_KEY: ${LLM_API_KEY:?isi LLM_API_KEY di berkas .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+
+volumes:
+  ollama:
+  caddy_data:
