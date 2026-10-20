@@ -160,6 +160,14 @@ describe("dokumentasi OpenAPI", () => {
     const tanpaRute = [...KUNCI_TERDOKUMENTASI].filter((x) => x !== "GET /files/*" && !terdaftar.has(x));
     expect(tanpaRute).toEqual([]);
   });
+  it("GET /docs menyajikan halaman Swagger UI yang membaca /openapi.json", async () => {
+    const r = await env.app.request("/docs");
+    expect(r.status).toBe(200);
+    expect(r.headers.get("content-type")).toContain("text/html");
+    const html = await r.text();
+    expect(html).toContain("/openapi.json");
+    expect(html).toContain("swagger-ui-dist@");
+  });
   it("GET /openapi.json valid: versi 3.1, skema body dari Zod, keamanan bearer", async () => {
     const r = await k.panggil<{
       openapi: string;

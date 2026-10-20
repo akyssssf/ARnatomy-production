@@ -371,6 +371,7 @@ const kunciRute = (metode: string, path: string) => `${metode.toUpperCase()} ${p
 export const KUNCI_TERDOKUMENTASI = new Set([
   ...RUTE.map((r) => kunciRute(r.metode, r.path)),
   "GET /openapi.json",
+  "GET /docs",
   "GET /files/*",
 ]);
 
@@ -435,7 +436,8 @@ export function bangunOpenApi() {
       description:
         "REST API ARnatomy (SKPL v1.0). Galat berbentuk {pesan, kode}. Token JWT dikirim sebagai Authorization: Bearer. RBAC dua peran: User (siswa/guru) dan Admin.",
     },
-    servers: [{ url: "http://localhost:4000" }],
+    /* relatif: "Try it out" di /docs memanggil server yang sama dengan halamannya */
+    servers: [{ url: "/" }],
     components: { securitySchemes: { bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" } } },
     paths,
   };

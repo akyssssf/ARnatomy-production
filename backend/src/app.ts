@@ -9,6 +9,7 @@ import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
+import { HALAMAN_DOKUMENTASI } from "./dokumentasi";
 import type { AppEnv, Deps } from "./konteks";
 import { GalatApi } from "./lib/galat";
 import { autentikasi, wajibPeran, wajibProfilLengkap } from "./middleware";
@@ -60,6 +61,8 @@ export function buatApp(deps: Deps) {
 
   const dokumen = bangunOpenApi();
   app.get("/openapi.json", (c) => c.json(dokumen));
+  /* Dokumentasi interaktif (Swagger UI dari CDN, versi dikunci); "Authorize" menerima access token untuk mencoba rute */
+  app.get("/docs", (c) => c.html(HALAMAN_DOKUMENTASI));
   app.route("/", rutHealth(deps));
   app.route("/v1/auth", rutAuth(deps));
 
