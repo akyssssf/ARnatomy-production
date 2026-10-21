@@ -22,6 +22,14 @@ const nextConfig: NextConfig = {
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
         ],
       },
+      /* Model 3D bawaan berkas publik: aplikasi mobile (WebView model-viewer) memuatnya dari asal lain, jadi butuh CORS */
+      {
+        source: "/models/:berkas*",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
+        ],
+      },
     ];
   },
 };
