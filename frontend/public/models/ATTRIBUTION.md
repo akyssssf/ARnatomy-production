@@ -21,10 +21,3 @@ Sitasi: Börner K. et al. (2025) *Human BioMolecular Atlas Program (HuBMAP): 3D 
 
 Nama node pada berkas (mis. `VH_M_left_cardiac_atrium`, `VH_M_right_*_bronchopulmonary_segment`)
 dipertahankan apa adanya dan dirujuk oleh kolom `mesh_3d` pada `src/lib/data.ts`.
-
-## Salinan untuk aplikasi mobile
-
-`heart-mobile.glb` dan `lungs-mobile.glb` adalah turunan dari `heart.glb` dan `lungs.glb` di atas (lisensi dan sumber sama,
-CC BY 4.0). Kompresi Meshopt dan kuantisasi dilepas lalu geometri dikompres ulang dengan **Draco**, karena penampil AR bawaan Android
-(Google Scene Viewer) dan WebView aplikasi tidak mendukung Meshopt. Dibuat dengan `gltf-transform copy`, `dequantize`, lalu `draco`.
-
