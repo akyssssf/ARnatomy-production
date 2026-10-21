@@ -22,11 +22,6 @@ const nextConfig: NextConfig = {
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
         ],
       },
-      /* AR Quick Look di iPhone membuka .usdz di Safari: tipe MIME harus tepat */
-      {
-        source: "/models/:berkas(.+\\.usdz)",
-        headers: [{ key: "Content-Type", value: "model/vnd.usdz+zip" }],
-      },
       /* Model 3D bawaan berkas publik: aplikasi mobile (WebView model-viewer) memuatnya dari asal lain, jadi butuh CORS */
       {
         source: "/models/:berkas*",
